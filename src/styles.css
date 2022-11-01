@@ -62,13 +62,19 @@ html {
   padding: 0;
 }
 
+form {
+  display: flex;
+  flex-direction: column;
+  justify-items: end;
+  align-items: flex-end;
+}
+
 .form-tab {
   display: flex;
   flex-direction: column;
-  width: 60vw;
-  height: 80vh;
-  max-width: 60vw;
-  max-height: 80vh;
+  align-items: center;
+  height: 60vh;
+  max-height: 60vh;
   border: 1px solid var(--background);
   background: transparent linear-gradient(180deg, #FFFFFF6E 0%, #FFFFFF 100%) 0% 0% no-repeat padding-box;
   border-radius: 33px;
@@ -101,16 +107,13 @@ html {
 .input-with-label {
   display: flex;
   flex-direction: column;
-  justify-content: start;
+  justify-content: flex-start;
   margin: 15px;
 }
 
 .buttons {
   display: flex;
   flex-direction: row;
-  position: absolute;
-  left: 690px;
-  top: 280px;
 }
 
 .button-convert {
@@ -132,6 +135,7 @@ html {
   width: 167px;
   height: 60px;
   margin: 8px;
+  cursor: pointer;
 }
 
 .button-convert:hover {
@@ -161,11 +165,7 @@ html {
   width: 147px;
   height: 60px;
   margin: 8px;
-}
-
-form {
-  max-width: 500px;
-  margin: 0 auto;
+  cursor: pointer;
 }
 
 h1 {
@@ -266,7 +266,6 @@ select {
   border: none;
   background: var(--background) 0% 0% no-repeat padding-box;
   box-shadow: 3px 3px 7px #C2CBD9;
-  border-radius: 0px;
   border-radius: 5px;
   opacity: 1;
   padding: 0 15px;
@@ -304,6 +303,7 @@ input[type="submit"]:active {
   transition: 0.3s all;
   transform: translateY(3px);
   opacity: 0.8;
+  border: none;
 }
 
 input:disabled {
@@ -318,6 +318,10 @@ input[type="button"]:active {
   border: none;
 }
 
+input[type="submit"]:focus {
+  border: none;
+}
+
 input[type="button"],
 input[type="submit"] {
   -webkit-appearance: none;
@@ -328,7 +332,7 @@ table {
   top: 350px;
   max-height: 400px;
   width: 100%;
-  padding: 25px 60px 25px 25px;
+  padding: 25px;
 }
 
 tbody {
@@ -359,7 +363,7 @@ td {
   font: var(--unnamed-font-style-normal) normal 300 var(--unnamed-font-size-16)/22px var(--unnamed-font-family-open-sans);
   letter-spacing: var(--unnamed-character-spacing-0);
   color: var(--primary);
-  text-align: left;
+  text-align: end;
   font: normal normal 300 16px/22px Open Sans;
   letter-spacing: 0px;
   color: #335566;

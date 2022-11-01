@@ -1,7 +1,8 @@
 import arrowIcon from "../assets/arrow_right.svg";
+import { conversionHistoryType } from "../conversionHistory.types";
 
 interface ConversionHistoryProps {
-  data: any[];
+  data: conversionHistoryType[];
 }
 
 export const ConversionHistory: React.FC<ConversionHistoryProps> = (props) => {
@@ -10,26 +11,23 @@ export const ConversionHistory: React.FC<ConversionHistoryProps> = (props) => {
       <table>
         <thead>
           <tr>
-            <th style={{minWidth: '550px'}}>Data</th>
+            <th style={{minWidth: '450px'}}>Data</th>
             <th style={{minWidth: '150px'}}>Przed konwersją</th>
-            <th style={{minWidth: '270px', textAlign: 'end'}}>Po konwersji</th>
+            <th style={{minWidth: '285px', textAlign: 'end'}}>Po konwersji</th>
           </tr>
         </thead>
         <tbody>
           {props.data.map((row) => (
             <tr>
-              {/* <td style={{width: '670px'}}>{row.date}</td> */}
-              <td style={{width: '750px'}}>23.10.2022</td> {/*mock'*/}
-
+              <td style={{width: '670px', textAlign: 'start'}}>{row.date}</td>
               <td>
                 {`${row.amount} ${row.from}`}
               </td>
-              <td style={{width: '30px', minWidth: '30px'}}>
+              <td>
                 <img src={arrowIcon} alt="arrow" />
               </td>
               <td style={{textAlign: 'end', fontWeight: 600}}>
-              {/* {`${row.result} ${row.to}`} */}
-              {`${row.result} USD`} {/*mock'*/}
+              {`${row.result} ${row.to}`}
               </td>
             </tr>
           ))}
