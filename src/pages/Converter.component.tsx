@@ -19,8 +19,6 @@ export default function Converter() {
   const [currencies, setCurrencies] = useState<any[]>([]);
   const [conversionHistory, setConversionHistory] = useState<any[]>([]);
   const [isConversionHistoryVisible, setIsConversionHistoryVisible] = useState<boolean>(false);
-  const [selectedFromCurrency, setSelectedFromCurrency] = useState<string>("");
-  const [selectedToCurrency, setSelectedToCurrency] = useState<string>("");
   const [isAlertModal, setIsAlertModal] = useState<boolean>(false);
   const [isResult, setIsResult] = useState<boolean>(false);
 
@@ -32,22 +30,28 @@ export default function Converter() {
     formState: { errors },
   } = useForm<FormData>();
   const watchAmount = watch("amount");
+  const watchFromCurrency = watch("fromCurrency");
+  const watchToCurrency = watch("toCurrency");
 
   const onSubmit = handleSubmit(({ amount, fromCurrency, toCurrency }) => {
     convertCurrency(fromCurrency, toCurrency)
-      .then((response) => response.text())
-      .then((result) => {
-        const res = JSON.parse(result);
-        const value = (parseFloat((Object.values(res)).toString()) * amount).toFixed(2).toString();
-        setValue("result", value);
-        const today = new Date();
-        const date = `${today.getDate()}.${today.getMonth() + 1}.${today.getFullYear()}`;
-        const row: conversionHistoryType = { date: date, amount: amount, result: value, from: fromCurrency, to: toCurrency };
-        setConversionHistory((state) => [...state, row]);
-        setIsConversionHistoryVisible(true);
-        setSelectedFromCurrency(fromCurrency);
-        setSelectedToCurrency(toCurrency);
-        setIsResult(true);
+      .then((response) => {
+        if (response.ok) {
+          const value = (parseFloat(Object.values(response).toString()) * amount).toFixed(2).toString();
+          setValue("result", value);
+          const today = new Date();
+          const date = `${today.getDate()}.${today.getMonth() + 1}.${today.getFullYear()}`;
+          const row: conversionHistoryType = {
+            date: date,
+            amount: amount,
+            result: value,
+            from: fromCurrency,
+            to: toCurrency,
+          };
+          setConversionHistory((state) => [...state, row]);
+          setIsConversionHistoryVisible(true);
+          setIsResult(true);
+        }
       })
       .catch((error) => {
         setIsAlertModal(true);
@@ -60,7 +64,7 @@ export default function Converter() {
       .then((response) => response.text())
       .then((result) => {
         const res = JSON.parse(result);
-        const symbols = Object.keys(res.results)
+        const symbols = Object.keys(res.results);
         setCurrencies(symbols);
       })
       .catch((error) => {
@@ -78,9 +82,11 @@ export default function Converter() {
             <div className="inputs">
               <div className="input-with-label">
                 <label>Przelicz z</label>
-                <select {...register("fromCurrency")} defaultValue={'USD'}>
+                <select {...register("fromCurrency")} defaultValue={"USD"}>
                   {currencies.map((option) => (
-                    <option key={option} value={option}>{option}</option>
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -89,9 +95,11 @@ export default function Converter() {
               </div>
               <div className="input-with-label" style={{ marginRight: "40px" }}>
                 <label>Przelicz na</label>
-                <select {...register("toCurrency")} defaultValue={'PLN'}>
+                <select {...register("toCurrency")} defaultValue={"PLN"}>
                   {currencies.map((option) => (
-                    <option key={option} value={option}>{option}</option>
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -109,17 +117,22 @@ export default function Converter() {
                   {...register("amount", { pattern: /\d+/ })}
                 />
                 {errors.amount && <p className="error-message">Nieprawidłowa wartość</p>}
-                <div className="symbol">{selectedFromCurrency}</div>
+                <div className="symbol">{watchFromCurrency}</div>
               </div>
               <div className="input-with-label">
                 <label htmlFor="output">Wynik</label>
                 <input
                   type="number"
                   placeholder="Wynik"
-                  style={{ width: "200px", fontWeight: isResult ? 700 : 500, borderBottom: "solid 2px #335566", borderRadius: "0px" }}
+                  style={{
+                    width: "200px",
+                    fontWeight: isResult ? 700 : 500,
+                    borderBottom: "solid 2px #335566",
+                    borderRadius: "0px",
+                  }}
                   {...register("result")}
                 />
-                <div className="symbol">{selectedToCurrency}</div>
+                <div className="symbol">{watchToCurrency}</div>
               </div>
             </div>
             <div className="buttons">
@@ -136,7 +149,6 @@ export default function Converter() {
                 Konwertuj
               </button>
             </div>
-
           </form>
           {isConversionHistoryVisible && <ConversionHistory data={conversionHistory} />}
         </div>
