@@ -73,8 +73,8 @@ form {
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 60vh;
-  max-height: 60vh;
+  height: 80vh;
+  max-height: 80vh;
   border: 1px solid var(--background);
   background: transparent linear-gradient(180deg, #FFFFFF6E 0%, #FFFFFF 100%) 0% 0% no-repeat padding-box;
   border-radius: 33px;
@@ -84,10 +84,10 @@ form {
 }
 
 .inputs {
-  margin-top: 20px;
   display: flex;
   flex-direction: row;
   justify-content: center;
+  height: 130px;
 }
 
 .symbol {
@@ -150,6 +150,7 @@ form {
   display: flex;
   justify-content: center;
   align-items: center;
+  text-align: center;
   background: var(--background) 0% 0% no-repeat padding-box;
   box-shadow: 3px 3px 7px #C2CBD9;
   border-radius: 100px;
@@ -157,7 +158,6 @@ form {
   opacity: 1;
   font: var(--unnamed-font-style-normal) normal 600 var(--unnamed-font-size-16)/22px var(--unnamed-font-family-open-sans);
   color: var(--primary);
-  text-align: left;
   font: normal normal 600 16px/22px Open Sans;
   letter-spacing: 0.8px;
   color: #335566;
@@ -168,8 +168,12 @@ form {
   cursor: pointer;
 }
 
+.button-history:disabled {
+  background: #e9e4e4;
+}
+
 h1 {
-  margin-top: 40px;
+  margin: 30px 0px 40px 0px;
   font: var(--unnamed-font-style-normal) normal var(--unnamed-font-weight-bold) 30px var(--unnamed-font-family-open-sans);
   letter-spacing: var(--unnamed-character-spacing-0);
   color: var(--primary);
@@ -180,7 +184,7 @@ h1 {
 
 .error-message {
   position: absolute;
-  top: 240px;
+  top: 230px;
   font: var(--unnamed-font-style-normal) normal var(--unnamed-font-weight-normal) 12px/17px var(--unnamed-font-family-open-sans);
   letter-spacing: var(--unnamed-character-spacing-0);
   color: var(--error);
@@ -329,7 +333,7 @@ input[type="submit"] {
 
 table {
   position: absolute;
-  top: 350px;
+  top: 320px;
   max-height: 400px;
   width: 100%;
   padding: 25px;
@@ -338,7 +342,7 @@ table {
 tbody {
   display: block;
   overflow: auto;
-  height: 240px;
+  max-height: 200px;
   width: 100%;
 }
 
@@ -393,7 +397,6 @@ table td {
 }
 
 table tbody {
-  display: block;
   overflow-y: scroll;
   width: 100%;
 }

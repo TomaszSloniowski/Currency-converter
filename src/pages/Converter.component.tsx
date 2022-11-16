@@ -9,15 +9,15 @@ import close_icon from "../assets/close_icon.svg";
 import { conversionHistoryType } from "../conversionHistory.types";
 
 type FormData = {
-  amount: number;
+  amount: string | null;
   fromCurrency: string;
   toCurrency: string;
   result: string;
 };
 
 export default function Converter() {
-  const [currencies, setCurrencies] = useState<any[]>([]);
-  const [conversionHistory, setConversionHistory] = useState<any[]>([]);
+  const [currencies, setCurrencies] = useState<string[]>([]);
+  const [conversionHistory, setConversionHistory] = useState<conversionHistoryType[]>([]);
   const [isConversionHistoryVisible, setIsConversionHistoryVisible] = useState<boolean>(false);
   const [isAlertModal, setIsAlertModal] = useState<boolean>(false);
   const [isResult, setIsResult] = useState<boolean>(false);
@@ -33,25 +33,65 @@ export default function Converter() {
   const watchFromCurrency = watch("fromCurrency");
   const watchToCurrency = watch("toCurrency");
 
+  const getConversionHistory = () => {
+    let rows: conversionHistoryType[] = [];
+    if (localStorage.length > 0) {
+      setConversionHistory([]);
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        debugger;
+        if (key && key.includes("currency-converter")) {
+          const rowItems = localStorage.getItem(key)?.split("_");
+          console.log(rowItems);
+          if (rowItems) {
+            const row: conversionHistoryType = {
+              id: rowItems[0],
+              date: rowItems[1],
+              amount: rowItems[2],
+              result: rowItems[3],
+              from: rowItems[4],
+              to: rowItems[5],
+            };
+            rows.push(row);
+          }
+        }
+      }
+      const sortedRows = rows.sort((a, b) => (a.id > b.id ? 1 : b.id > a.id ? -1 : 0));
+      setConversionHistory((state) => [...state, ...sortedRows]);
+      setIsConversionHistoryVisible(true);
+      setIsResult(true);
+    }
+  };
+
   const onSubmit = handleSubmit(({ amount, fromCurrency, toCurrency }) => {
+    if (!amount) return;
     convertCurrency(fromCurrency, toCurrency)
       .then((response) => {
         if (response.ok) {
-          const value = (parseFloat(Object.values(response).toString()) * amount).toFixed(2).toString();
-          setValue("result", value);
-          const today = new Date();
-          const date = `${today.getDate()}.${today.getMonth() + 1}.${today.getFullYear()}`;
-          const row: conversionHistoryType = {
-            date: date,
-            amount: amount,
-            result: value,
-            from: fromCurrency,
-            to: toCurrency,
-          };
-          setConversionHistory((state) => [...state, row]);
-          setIsConversionHistoryVisible(true);
-          setIsResult(true);
+          return response.json();
         }
+      })
+      .then((data) => {
+        const value = (parseFloat(Object.values(data).toString()) * parseInt(amount)).toFixed(2).toString();
+        setValue("result", value);
+        const today = new Date();
+        const date = `${today.getDate()}.${today.getMonth() + 1}.${today.getFullYear()}`;
+        const row: conversionHistoryType = {
+          id: today.getTime().toString(),
+          date: date,
+          amount: amount,
+          result: value,
+          from: fromCurrency,
+          to: toCurrency,
+        };
+        setConversionHistory((state) => [...state, row]);
+        setIsConversionHistoryVisible(true);
+        setIsResult(true);
+
+        localStorage.setItem(
+          `${today.getTime().toString()}_currency-converter`,
+          `${row.id}_${row.date}_${row.amount}_${row.result}_${row.from}_${row.to}`
+        );
       })
       .catch((error) => {
         setIsAlertModal(true);
@@ -61,17 +101,33 @@ export default function Converter() {
 
   useEffect(() => {
     getAllCurrencies()
-      .then((response) => response.text())
-      .then((result) => {
-        const res = JSON.parse(result);
-        const symbols = Object.keys(res.results);
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        }
+      })
+      .then((data) => {
+        const symbols = Object.keys(data.results);
         setCurrencies(symbols);
+        setValue("fromCurrency", "USD");
+        setValue("toCurrency", "PLN");
       })
       .catch((error) => {
         setIsAlertModal(true);
         console.log("error", error);
       });
+    getConversionHistory();
   }, []);
+
+  const handleRemoveHistory = () => {
+    setConversionHistory([]);
+    setIsConversionHistoryVisible(false);
+    setValue("result", "");
+    setValue("amount", null);
+    setValue("fromCurrency", "USD");
+    setValue("toCurrency", "PLN");
+    window.localStorage.clear();
+  };
 
   return (
     <>
@@ -82,7 +138,7 @@ export default function Converter() {
             <div className="inputs">
               <div className="input-with-label">
                 <label>Przelicz z</label>
-                <select {...register("fromCurrency")} defaultValue={"USD"}>
+                <select {...register("fromCurrency")}>
                   {currencies.map((option) => (
                     <option key={option} value={option}>
                       {option}
@@ -95,7 +151,7 @@ export default function Converter() {
               </div>
               <div className="input-with-label" style={{ marginRight: "40px" }}>
                 <label>Przelicz na</label>
-                <select {...register("toCurrency")} defaultValue={"PLN"}>
+                <select {...register("toCurrency")}>
                   {currencies.map((option) => (
                     <option key={option} value={option}>
                       {option}
@@ -108,16 +164,18 @@ export default function Converter() {
                 <input
                   type="text"
                   placeholder="Wpisz kwotę"
+                  minLength={1}
+                  maxLength={5}
                   style={{
                     width: "200px",
                     color: errors.amount ? "#CA163A" : "#335566",
                     borderBottom: !errors.amount ? "solid 2px #335566" : "solid 3px #CA163A",
                     borderRadius: "0px",
                   }}
-                  {...register("amount", { pattern: /\d+/ })}
+                  {...register("amount", { pattern: /\d+/, required: true })}
                 />
                 {errors.amount && <p className="error-message">Nieprawidłowa wartość</p>}
-                <div className="symbol">{watchFromCurrency}</div>
+                {isResult && <div className="symbol">{watchFromCurrency}</div>}
               </div>
               <div className="input-with-label">
                 <label htmlFor="output">Wynik</label>
@@ -132,10 +190,20 @@ export default function Converter() {
                   }}
                   {...register("result")}
                 />
-                <div className="symbol">{watchToCurrency}</div>
+                {isResult && <div className="symbol">{watchToCurrency}</div>}
               </div>
             </div>
             <div className="buttons">
+              <button
+                className="button-history"
+                type="button"
+                disabled={!conversionHistory.length}
+                onClick={() => {
+                  handleRemoveHistory();
+                }}
+              >
+                Wyczyść historię
+              </button>
               <button
                 onClick={() => {
                   setIsConversionHistoryVisible(!isConversionHistoryVisible);

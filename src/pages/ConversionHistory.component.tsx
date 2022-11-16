@@ -18,7 +18,7 @@ export const ConversionHistory: React.FC<ConversionHistoryProps> = (props) => {
         </thead>
         <tbody>
           {props.data.map((row) => (
-            <tr>
+            <tr key={row.id}>
               <td style={{width: '670px', textAlign: 'start'}}>{row.date}</td>
               <td>
                 {`${row.amount} ${row.from}`}

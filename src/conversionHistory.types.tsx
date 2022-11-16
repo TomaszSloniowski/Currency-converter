@@ -1,7 +1,8 @@
 export interface conversionHistoryType {
-    date: string;
-    amount: number,
-    result: string;
-    from: string;
-    to: string;
+  id: string;
+  date: string;
+  amount: string | null;
+  result: string;
+  from: string;
+  to: string;
 }
